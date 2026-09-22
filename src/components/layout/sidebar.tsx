@@ -47,10 +47,10 @@ const navSections: NavSection[] = [
       { label: 'Siswa',                icon: GraduationCap, href: '/siswa' },
       { label: 'Guru',                 icon: UserCheck,     href: '/guru' },
       { label: 'Kelas',                icon: School,        href: '/kelas' },
-      { label: 'Kategori Pelanggaran', icon: List,          href: '/pelanggaran/kategori' },
+      { label: 'Kategori Pelanggaran', icon: List,          href: '/pelanggaran/kategori', roles: ['SUPER_ADMIN'] },
       { label: 'Pelanggaran',          icon: ClipboardList, href: '/pelanggaran' },
-      { label: 'Tahun Ajaran',         icon: Calendar,      href: '/tahun-ajaran' },
-      { label: 'Kenaikan Kelas',       icon: ArrowUpCircle, href: '/kenaikan-kelas' },
+      { label: 'Tahun Ajaran',         icon: Calendar,      href: '/tahun-ajaran', roles: ['SUPER_ADMIN'] },
+      { label: 'Kenaikan Kelas',       icon: ArrowUpCircle, href: '/kenaikan-kelas', roles: ['SUPER_ADMIN'] },
     ],
   },
   {

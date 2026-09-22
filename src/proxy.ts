@@ -10,6 +10,9 @@ const PUBLIC_PATHS = ['/login']
 // Routes that require SUPER_ADMIN role — ADMIN will be redirected to /dashboard
 const SUPER_ADMIN_ONLY_PATHS = [
   '/laporan',
+  '/pelanggaran/kategori',
+  '/kenaikan-kelas',
+  '/tahun-ajaran',
 ]
 
 export async function proxy(request: NextRequest) {
