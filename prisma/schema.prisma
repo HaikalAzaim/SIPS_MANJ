@@ -1,0 +1,383 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  password    String
+  role        Role      @default(ADMIN)
+  status      Boolean   @default(true)
+  lastLogin   DateTime? @map("last_login")
+  avatar      String?
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  pelanggaran     Pelanggaran[]
+  suratTeguran   SuratTeguran[]
+  auditLogs      AuditLog[]
+  notifications  Notification[]
+  prosesKenaikan ProsesKenaikanKelas[]
+
+  @@index([email])
+  @@index([role])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Guru {
+  id          String    @id @default(cuid())
+  niup        String    @unique
+  nama        String
+  jenisKelamin JenisKelamin @map("jenis_kelamin")
+  email       String?
+  nomorHp     String?   @map("nomor_hp")
+  foto        String?
+  status      Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  kelas       Kelas[]
+
+  @@index([deletedAt])
+  @@index([deletedAt, nama])
+  @@map("guru")
+}
+
+model Kelas {
+  id          String    @id @default(cuid())
+  namaKelas   String    @map("nama_kelas")
+  tingkat     String
+  jurusan     String?
+  waliKelasId String?   @map("wali_kelas_id")
+  status      Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  waliKelas          Guru?     @relation(fields: [waliKelasId], references: [id], onDelete: SetNull)
+  siswa              Siswa[]
+  riwayatAkademik    RiwayatAkademik[]
+  detailKenaikanDari DetailKenaikan[] @relation("fromClass")
+  detailKenaikanKe   DetailKenaikan[] @relation("toClass")
+
+  @@index([waliKelasId])
+  @@index([deletedAt])
+  @@index([deletedAt, tingkat, namaKelas])
+  @@map("kelas")
+}
+
+model Siswa {
+  id            String    @id @default(cuid())
+  nisn          String    @unique
+  niup          String    @unique
+  nama          String
+  jenisKelamin  JenisKelamin @map("jenis_kelamin")
+  kelasId       String    @map("kelas_id")
+  tempatLahir   String?   @map("tempat_lahir")
+  tanggalLahir  DateTime? @map("tanggal_lahir")
+  alamat        String?   @db.Text
+  tahunMasuk    Int?      @map("tahun_masuk")
+  foto          String?
+  status        Boolean   @default(true)
+  deletedAt     DateTime? @map("deleted_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  kelas           Kelas     @relation(fields: [kelasId], references: [id])
+  pelanggaran     Pelanggaran[]
+  suratTeguran    SuratTeguran[]
+  riwayatAkademik RiwayatAkademik[]
+  detailKenaikan  DetailKenaikan[]
+
+  @@index([kelasId])
+  @@index([nisn])
+  @@index([niup])
+  @@index([deletedAt])
+  @@index([deletedAt, kelasId])
+  @@index([deletedAt, nama])
+  @@map("siswa")
+}
+
+model KategoriPelanggaran {
+  id          String    @id @default(cuid())
+  nama        String
+  deskripsi   String?   @db.Text
+  poin        Int
+  tingkat     TingkatPelanggaran @default(RINGAN)
+  status      Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  pelanggaran Pelanggaran[]
+
+  @@index([deletedAt])
+  @@map("kategori_pelanggaran")
+}
+
+model Pelanggaran {
+  id                    String    @id @default(cuid())
+  siswaId               String    @map("siswa_id")
+  kategoriPelanggaranId String    @map("kategori_pelanggaran_id")
+  tanggal               DateTime
+  waktu                 String
+  lokasi                String?
+  keterangan            String?   @db.Text
+  poin                  Int       // Snapshot poin from kategori at time of creation
+  dicatatOlehId         String    @map("dicatat_oleh_id")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  siswa                 Siswa     @relation(fields: [siswaId], references: [id])
+  kategoriPelanggaran   KategoriPelanggaran @relation(fields: [kategoriPelanggaranId], references: [id])
+  dicatatOleh           User      @relation(fields: [dicatatOlehId], references: [id])
+
+  @@index([siswaId])
+  @@index([kategoriPelanggaranId])
+  @@index([dicatatOlehId])
+  @@index([tanggal])
+  @@index([createdAt])
+  @@index([siswaId, poin])
+  @@index([tanggal, kategoriPelanggaranId])
+  @@map("pelanggaran")
+}
+
+model ThresholdPoin {
+  id          String    @id @default(cuid())
+  namaStatus  String    @map("nama_status")
+  minimumPoin Int       @map("minimum_poin")
+  maximumPoin Int?      @map("maximum_poin")
+  tindakan    String?   @db.Text
+  warna       String    @default("#22c55e")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("threshold_poin")
+}
+
+model SuratTeguran {
+  id            String    @id @default(cuid())
+  nomorSurat    String    @unique @map("nomor_surat")
+  siswaId       String    @map("siswa_id")
+  jenisTeguran  String    @map("jenis_teguran")
+  totalPoin     Int       @map("total_poin")  // Snapshot at time of creation
+  totalPelanggaran Int    @map("total_pelanggaran")
+  keterangan    String?   @db.Text
+  tanggal       DateTime
+  status        StatusSurat @default(DRAFT)
+  dibuatOlehId  String    @map("dibuat_oleh_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  siswa         Siswa     @relation(fields: [siswaId], references: [id])
+  dibuatOleh    User      @relation(fields: [dibuatOlehId], references: [id])
+
+  @@index([siswaId])
+  @@index([dibuatOlehId])
+  @@index([tanggal])
+  @@index([status, createdAt])
+  @@map("surat_teguran")
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  action      String
+  module      String
+  recordId    String?   @map("record_id")
+  description String?   @db.Text
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent") @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([module])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  judul       String
+  pesan       String    @db.Text
+  jenis       JenisNotifikasi
+  dibaca      Boolean   @default(false)
+  link        String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([dibaca])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model SystemSetting {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  value       String    @db.Text
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum JenisKelamin {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+enum TingkatPelanggaran {
+  RINGAN
+  SEDANG
+  BERAT
+  SANGAT_BERAT
+}
+
+enum StatusSurat {
+  DRAFT
+  DITERBITKAN
+  DIKIRIM
+}
+
+enum JenisNotifikasi {
+  THRESHOLD
+  SURAT_TEGURAN
+  PELANGGARAN_BARU
+  SISTEM
+}
+
+// ── Kenaikan Kelas ──────────────────────────────────────────────
+
+enum StatusAkademik {
+  AKTIF
+  NAIK_KELAS
+  TINGGAL_KELAS
+  LULUS
+  PINDAH_SEKOLAH
+  TIDAK_AKTIF
+}
+
+enum StatusProses {
+  DRAFT
+  SEDANG_DIPROSES
+  SELESAI
+  GAGAL
+}
+
+enum StatusKenaikan {
+  NAIK_KELAS
+  TINGGAL_KELAS
+  LULUS
+  PINDAH_SEKOLAH
+  TIDAK_AKTIF
+  BELUM_DITENTUKAN
+}
+
+model TahunAjaran {
+  id        String   @id @default(cuid())
+  nama      String   @unique
+  mulai     DateTime
+  selesai   DateTime
+  isActive  Boolean  @default(false) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  riwayatAkademik    RiwayatAkademik[]
+  prosesKenaikanDari ProsesKenaikanKelas[] @relation("fromYear")
+  prosesKenaikanKe   ProsesKenaikanKelas[] @relation("toYear")
+
+  @@index([isActive])
+  @@map("tahun_ajaran")
+}
+
+model RiwayatAkademik {
+  id            String         @id @default(cuid())
+  siswaId       String         @map("siswa_id")
+  tahunAjaranId String         @map("tahun_ajaran_id")
+  kelasId       String         @map("kelas_id")
+  status        StatusAkademik @default(AKTIF)
+  catatan       String?        @db.Text
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  siswa       Siswa       @relation(fields: [siswaId], references: [id])
+  tahunAjaran TahunAjaran @relation(fields: [tahunAjaranId], references: [id])
+  kelas       Kelas       @relation(fields: [kelasId], references: [id])
+
+  @@unique([siswaId, tahunAjaranId])
+  @@index([siswaId])
+  @@index([tahunAjaranId])
+  @@index([kelasId])
+  @@map("riwayat_akademik")
+}
+
+model ProsesKenaikanKelas {
+  id                String       @id @default(cuid())
+  dariTahunAjaranId String       @map("dari_tahun_ajaran_id")
+  keTahunAjaranId   String       @map("ke_tahun_ajaran_id")
+  status            StatusProses @default(DRAFT)
+  totalSiswa        Int          @default(0) @map("total_siswa")
+  jumlahNaik        Int          @default(0) @map("jumlah_naik")
+  jumlahTinggal     Int          @default(0) @map("jumlah_tinggal")
+  jumlahLulus       Int          @default(0) @map("jumlah_lulus")
+  jumlahPindah      Int          @default(0) @map("jumlah_pindah")
+  jumlahTidakAktif  Int          @default(0) @map("jumlah_tidak_aktif")
+  diprosesOlehId    String?      @map("diproses_oleh_id")
+  diprosesAt        DateTime?    @map("diproses_at")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  dariTahunAjaran TahunAjaran @relation("fromYear", fields: [dariTahunAjaranId], references: [id])
+  keTahunAjaran   TahunAjaran @relation("toYear", fields: [keTahunAjaranId], references: [id])
+  diprosesOleh    User?       @relation(fields: [diprosesOlehId], references: [id])
+  detailKenaikan  DetailKenaikan[]
+
+  @@unique([dariTahunAjaranId, keTahunAjaranId])
+  @@index([dariTahunAjaranId])
+  @@index([keTahunAjaranId])
+  @@map("proses_kenaikan_kelas")
+}
+
+model DetailKenaikan {
+  id               String         @id @default(cuid())
+  prosesKenaikanId String         @map("proses_kenaikan_id")
+  siswaId          String         @map("siswa_id")
+  dariKelasId      String         @map("dari_kelas_id")
+  keKelasId        String?        @map("ke_kelas_id")
+  status           StatusKenaikan @default(BELUM_DITENTUKAN)
+  catatan          String?        @db.Text
+  createdAt        DateTime       @default(now()) @map("created_at")
+
+  prosesKenaikan ProsesKenaikanKelas @relation(fields: [prosesKenaikanId], references: [id], onDelete: Cascade)
+  siswa          Siswa               @relation(fields: [siswaId], references: [id])
+  dariKelas      Kelas               @relation("fromClass", fields: [dariKelasId], references: [id])
+  keKelas        Kelas?              @relation("toClass", fields: [keKelasId], references: [id])
+
+  @@unique([prosesKenaikanId, siswaId])
+  @@index([prosesKenaikanId])
+  @@index([siswaId])
+  @@index([prosesKenaikanId, dariKelasId])
+  @@index([prosesKenaikanId, status])
+  @@map("detail_kenaikan")
+}
