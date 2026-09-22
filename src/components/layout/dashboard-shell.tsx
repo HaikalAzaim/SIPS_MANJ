@@ -53,7 +53,7 @@ export function DashboardShell({ children, user, notificationCount }: DashboardS
       </div>
 
       {/* Bottom Navigation — Android/mobile only */}
-      <BottomNav onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+      <BottomNav onMenuClick={() => setSidebarOpen(!sidebarOpen)} role={user.role} />
     </div>
   )
 }

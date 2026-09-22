@@ -13,18 +13,22 @@ import { cn } from '@/lib/utils'
 
 interface BottomNavProps {
   onMenuClick: () => void
+  role?: 'SUPER_ADMIN' | 'ADMIN'
 }
 
-const bottomNavItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'Siswa',     icon: GraduationCap,   href: '/siswa' },
-  { label: 'Pelanggaran', icon: ClipboardList, href: '/pelanggaran' },
-  { label: 'Laporan',   icon: FileText,        href: '/laporan/pelanggaran' },
-  { label: 'Menu',      icon: Menu,            href: null as unknown as string },
+const allBottomNavItems = [
+  { label: 'Dashboard',   icon: LayoutDashboard, href: '/dashboard',            roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'Siswa',       icon: GraduationCap,   href: '/siswa',                roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'Pelanggaran', icon: ClipboardList,   href: '/pelanggaran',          roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'Laporan',     icon: FileText,        href: '/laporan/pelanggaran',  roles: ['SUPER_ADMIN'] },
+  { label: 'Menu',        icon: Menu,            href: null as unknown as string, roles: ['SUPER_ADMIN', 'ADMIN'] },
 ]
 
-export function BottomNav({ onMenuClick }: BottomNavProps) {
+export function BottomNav({ onMenuClick, role = 'ADMIN' }: BottomNavProps) {
   const pathname = usePathname()
+
+  // Filter items by role
+  const navItems = allBottomNavItems.filter(item => item.roles.includes(role))
 
   const isActive = (href: string | null) => {
     if (!href) return false
@@ -38,7 +42,7 @@ export function BottomNav({ onMenuClick }: BottomNavProps) {
       role="navigation"
       aria-label="Navigasi bawah"
     >
-      {bottomNavItems.map((item) => {
+      {navItems.map((item) => {
         const Icon = item.icon
         const active = isActive(item.href)
 
@@ -76,3 +80,4 @@ export function BottomNav({ onMenuClick }: BottomNavProps) {
     </nav>
   )
 }
+

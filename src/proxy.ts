@@ -7,6 +7,11 @@ const COOKIE_NAME = 'sips-session'
 
 const PUBLIC_PATHS = ['/login']
 
+// Routes that require SUPER_ADMIN role — ADMIN will be redirected to /dashboard
+const SUPER_ADMIN_ONLY_PATHS = [
+  '/laporan',
+]
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get(COOKIE_NAME)?.value
@@ -20,8 +25,10 @@ export async function proxy(request: NextRequest) {
 
   // ── Validate token if present ──
   if (token) {
+    let payload: { role?: string } = {}
     try {
-      await jwtVerify(token, JWT_SECRET)
+      const result = await jwtVerify(token, JWT_SECRET)
+      payload = result.payload as { role?: string }
     } catch {
       // Token invalid/expired → clear cookie and redirect to login
       const response = NextResponse.redirect(new URL('/login', request.url))
@@ -32,6 +39,15 @@ export async function proxy(request: NextRequest) {
     // Authenticated user trying to access login → send to dashboard
     if (isPublicPath) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    // ── Role-based access control ──
+    // ADMIN role cannot access SUPER_ADMIN_ONLY_PATHS
+    const isSuperAdminOnly = SUPER_ADMIN_ONLY_PATHS.some((p) => pathname.startsWith(p))
+    if (isSuperAdminOnly && payload.role !== 'SUPER_ADMIN') {
+      const url = new URL('/dashboard', request.url)
+      url.searchParams.set('forbidden', '1')
+      return NextResponse.redirect(url)
     }
   }
 
@@ -51,3 +67,4 @@ export const config = {
     '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 }
+

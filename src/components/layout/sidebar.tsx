@@ -56,7 +56,7 @@ const navSections: NavSection[] = [
   {
     section: 'LAPORAN',
     items: [
-      { label: 'Laporan', icon: FileText, children: [
+      { label: 'Laporan', icon: FileText, roles: ['SUPER_ADMIN'], children: [
         { label: 'Laporan Pelanggaran', href: '/laporan/pelanggaran', icon: FileText },
         { label: 'Laporan Siswa',       href: '/laporan/siswa',       icon: GraduationCap },
         { label: 'Laporan Kelas',       href: '/laporan/kelas',       icon: School },
