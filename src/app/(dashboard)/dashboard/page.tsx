@@ -100,101 +100,96 @@ export default async function DashboardPage() {
     <div className="animate-fade-in w-full max-w-full" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       {/* ── 1. Page Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-        {/* Left */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        {/* Title row */}
         <div>
-          <h1 className="page-title" style={{ fontSize: '1.5rem' }}>
+          <h1 className="page-title" style={{ fontSize: 'clamp(1.25rem, 5vw, 1.5rem)' }}>
             Selamat Datang, {firstName} 👋
           </h1>
           <p className="page-subtitle">Berikut ringkasan data pelanggaran siswa pada sistem SIPS.</p>
         </div>
 
-        {/* Right: Tahun ajaran + CTA */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', flexShrink: 0 }}>
-          {/* Row 1: Tahun Ajaran + Catat Pelanggaran */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {/* Tahun Ajaran pill */}
-            <button style={{
+        {/* Actions row — wraps naturally on mobile */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Tahun Ajaran pill */}
+          <button style={{
+            display: 'flex', alignItems: 'center', gap: '0.375rem',
+            padding: '0.4rem 0.75rem',
+            borderRadius: '8px',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--text-secondary)',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}>
+            <CalendarDays size={13} style={{ color: '#D9A62E' }} />
+            <span style={{ color: 'var(--text-muted)' }}>Tahun Ajaran</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{tahunAjaran}</span>
+            <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
+          </button>
+
+          {/* + Catat Pelanggaran */}
+          <Link
+            href="/pelanggaran"
+            style={{
               display: 'flex', alignItems: 'center', gap: '0.375rem',
-              padding: '0.4rem 0.75rem',
+              padding: '0.4rem 0.875rem',
               borderRadius: '8px',
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-secondary)',
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}>
-              <CalendarDays size={13} style={{ color: '#D9A62E' }} />
-              <span style={{ color: 'var(--text-muted)' }}>Tahun Ajaran</span>
-              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{tahunAjaran}</span>
-              <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
-            </button>
-
-            {/* + Catat Pelanggaran */}
-            <Link
-              href="/pelanggaran"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.375rem',
-                padding: '0.4rem 0.875rem',
-                borderRadius: '8px',
-                background: '#D9A62E',
-                color: '#07111F',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                transition: 'background 0.15s ease',
-              }}
-              className="hover:bg-[#C4912A]"
-            >
-              <Plus size={14} />
-              Catat Pelanggaran
-            </Link>
-          </div>
-
-          {/* Row 2: Quick links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <Link href="/siswa" style={{
-              display: 'flex', alignItems: 'center', gap: '0.3rem',
-              padding: '0.3rem 0.75rem',
-              borderRadius: '7px',
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-secondary)',
-              fontSize: '0.75rem',
-              fontWeight: 500,
+              background: '#D9A62E',
+              color: '#07111F',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
               textDecoration: 'none',
-              transition: 'border-color 0.15s, color 0.15s',
               whiteSpace: 'nowrap',
-            }} className="hover:border-[var(--gold-border)] hover:text-[var(--text-primary)]">
-              <Users size={12} />
-              Lihat Data Siswa
-            </Link>
-            <Link href="/pelanggaran" style={{
-              display: 'flex', alignItems: 'center', gap: '0.3rem',
-              padding: '0.3rem 0.75rem',
-              borderRadius: '7px',
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-secondary)',
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              textDecoration: 'none',
-              transition: 'border-color 0.15s, color 0.15s',
-              whiteSpace: 'nowrap',
-            }} className="hover:border-[var(--gold-border)] hover:text-[var(--text-primary)]">
-              <ClipboardList size={12} />
-              Lihat Semua Pelanggaran
-            </Link>
-          </div>
+              transition: 'background 0.15s ease',
+            }}
+            className="hover:bg-[#C4912A]"
+          >
+            <Plus size={14} />
+            Catat Pelanggaran
+          </Link>
+
+          {/* Quick links */}
+          <Link href="/siswa" style={{
+            display: 'flex', alignItems: 'center', gap: '0.3rem',
+            padding: '0.3rem 0.75rem',
+            borderRadius: '7px',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--text-secondary)',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+            transition: 'border-color 0.15s, color 0.15s',
+          }} className="hover:border-[var(--gold-border)] hover:text-[var(--text-primary)]">
+            <Users size={12} />
+            Lihat Data Siswa
+          </Link>
+          <Link href="/pelanggaran" style={{
+            display: 'flex', alignItems: 'center', gap: '0.3rem',
+            padding: '0.3rem 0.75rem',
+            borderRadius: '7px',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--text-secondary)',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+            transition: 'border-color 0.15s, color 0.15s',
+          }} className="hover:border-[var(--gold-border)] hover:text-[var(--text-primary)]">
+            <ClipboardList size={12} />
+            Lihat Semua Pelanggaran
+          </Link>
         </div>
       </div>
 
       {/* ── 2. Stat Cards ── */}
       <div className="stat-cards-grid">
-        {statCards.map((card) => (
+        {statCards.map((card, idx) => (
           <StatCard
             key={card.key}
             label={card.label}
@@ -203,6 +198,8 @@ export default async function DashboardPage() {
             colorVariant={card.colorVariant}
             sub={card.sub}
             trend={card.trend}
+            /* On mobile (2-col grid), last odd card spans 2 columns */
+            className={idx === statCards.length - 1 && statCards.length % 2 !== 0 ? 'stat-card-last-odd' : ''}
           />
         ))}
       </div>

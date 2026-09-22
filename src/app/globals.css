@@ -368,12 +368,12 @@ body {
 /* Stat cards responsive grid */
 .stat-cards-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 0.875rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
   width: 100%;
 }
-@media (min-width: 480px) {
-  .stat-cards-grid { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 640px) {
+  .stat-cards-grid { gap: 0.875rem; }
 }
 @media (min-width: 768px) {
   .stat-cards-grid { grid-template-columns: repeat(3, 1fr); }
@@ -381,6 +381,14 @@ body {
 @media (min-width: 1280px) {
   .stat-cards-grid { grid-template-columns: repeat(5, 1fr); }
 }
+
+/* Last card spans 2 columns on mobile 2-col grid when count is odd */
+@media (max-width: 767px) {
+  .stat-card-last-odd {
+    grid-column: span 2;
+  }
+}
+
 
 /* Bottom 4-panel grid (Pelanggaran Terbaru wider + 3 equal panels) */
 .bottom-panels-grid {
