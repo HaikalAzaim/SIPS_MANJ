@@ -1523,4 +1523,267 @@ input[type="time"] { color-scheme: dark; }
 }
 
 
+/* ============================================================
+   MOBILE / ANDROID — BOTTOM NAVIGATION BAR
+   ============================================================ */
+
+/* Safe area support for devices with notch / navigation bar */
+:root {
+  --bottom-nav-height: 64px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  background: var(--bg-sidebar);
+  border-top: 1px solid var(--border-subtle);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  height: calc(var(--bottom-nav-height) + var(--safe-area-bottom));
+  padding-bottom: var(--safe-area-bottom);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 4px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 56px;
+}
+
+.bottom-nav-item:hover,
+.bottom-nav-item:active {
+  color: var(--text-secondary);
+}
+
+.bottom-nav-item-active {
+  color: var(--gold) !important;
+}
+
+.bottom-nav-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 28px;
+  border-radius: 14px;
+  transition: background 0.2s ease, transform 0.18s ease;
+}
+
+.bottom-nav-item-active .bottom-nav-icon-wrap,
+.bottom-nav-icon-active {
+  background: rgba(217, 166, 46, 0.12);
+}
+
+.bottom-nav-item:active .bottom-nav-icon-wrap {
+  transform: scale(0.92);
+}
+
+.bottom-nav-indicator {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--gold);
+}
+
+.bottom-nav-label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: font-weight 0.18s ease;
+}
+
+.bottom-nav-item-active .bottom-nav-label {
+  font-weight: 700;
+}
+
+/* Light mode bottom nav */
+[data-theme="light"] .bottom-nav,
+.light .bottom-nav {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================
+   MOBILE — MAIN CONTENT WITH BOTTOM NAV PADDING
+   ============================================================ */
+
+/* Add bottom padding on mobile so content doesn't hide under bottom nav */
+.main-content-mobile-padded {
+  padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 1.5rem);
+}
+
+@media (min-width: 1024px) {
+  .main-content-mobile-padded {
+    padding-bottom: 2rem;
+  }
+}
+
+/* ============================================================
+   MOBILE — GENERAL LAYOUT IMPROVEMENTS
+   ============================================================ */
+
+/* Tighter padding on small mobile screens */
+@media (max-width: 639px) {
+  .main-content {
+    padding: 1.125rem 0.875rem;
+  }
+
+  /* Page header compact on mobile */
+  .page-header-wrap {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.75rem;
+  }
+
+  /* Stat cards — 2 per row on small mobile */
+  .stat-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+  }
+
+  .stat-card {
+    padding: 0.875rem 0.875rem 0.75rem;
+  }
+
+  .stat-card-value {
+    font-size: 1.625rem;
+  }
+
+  /* Table toolbar — stacks on mobile */
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-toolbar-group {
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Bottom panels single column */
+  .bottom-panels-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Section title smaller */
+  .section-title {
+    font-size: 0.875rem;
+  }
+}
+
+/* ============================================================
+   MOBILE — TOPBAR IMPROVEMENTS
+   ============================================================ */
+
+/* Bigger hamburger touch target */
+@media (max-width: 1023px) {
+  .topbar {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+  }
+}
+
+/* ============================================================
+   MOBILE — TOUCH TARGETS (min 44px per Apple/Google HIG)
+   ============================================================ */
+
+@media (max-width: 1023px) {
+  /* Action buttons larger on mobile */
+  .action-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 8px;
+  }
+
+  /* Pagination bigger on mobile */
+  .pagination-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Nav items in sidebar taller for touch */
+  .sidebar-item-active,
+  nav a, nav button {
+    min-height: 44px;
+  }
+}
+
+/* ============================================================
+   MOBILE — DIALOG / MODAL IMPROVEMENTS
+   ============================================================ */
+
+@media (max-width: 639px) {
+  /* Dialog slides up from bottom on mobile */
+  [role="dialog"] > div {
+    margin: auto 0 0 0 !important;
+    border-radius: 1.25rem 1.25rem 0 0 !important;
+    max-height: 92vh !important;
+    overflow-y: auto;
+  }
+}
+
+/* ============================================================
+   MOBILE — TABLE SCROLL HINT
+   ============================================================ */
+
+@media (max-width: 767px) {
+  .table-scroll {
+    /* Subtle right shadow to hint horizontal scroll */
+    background: linear-gradient(to right, transparent calc(100% - 24px), rgba(217, 166, 46, 0.06));
+  }
+
+  .table-wrapper {
+    border-radius: 8px;
+  }
+
+  /* Reduce table cell padding on mobile */
+  .data-table th,
+  .table-container th {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .data-table td,
+  .table-container td {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
 

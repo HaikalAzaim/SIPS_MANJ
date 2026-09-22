@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Topbar } from '@/components/layout/topbar'
+import { BottomNav } from '@/components/layout/bottom-nav'
 
 interface DashboardShellProps {
   children: React.ReactNode
@@ -46,10 +47,13 @@ export function DashboardShell({ children, user, notificationCount }: DashboardS
           isSidebarCollapsed={sidebarCollapsed}
           onToggleSidebarCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
-        <main className="main-content">
+        <main className="main-content main-content-mobile-padded">
           {children}
         </main>
       </div>
+
+      {/* Bottom Navigation — Android/mobile only */}
+      <BottomNav onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
     </div>
   )
 }

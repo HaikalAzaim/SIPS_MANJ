@@ -1,9 +1,38 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Bell, Menu, ChevronDown, User, Settings, LogOut, Search, Calendar } from 'lucide-react'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
+
+/** Map pathname prefix → human-readable page title for mobile topbar */
+const PAGE_TITLES: Record<string, string> = {
+  '/dashboard':              'Dashboard',
+  '/siswa':                  'Data Siswa',
+  '/guru':                   'Data Guru',
+  '/kelas':                  'Data Kelas',
+  '/pelanggaran/kategori':   'Kategori',
+  '/pelanggaran':            'Pelanggaran',
+  '/tahun-ajaran':           'Tahun Ajaran',
+  '/kenaikan-kelas':         'Kenaikan Kelas',
+  '/laporan/pelanggaran':    'Laporan',
+  '/laporan/siswa':          'Laporan Siswa',
+  '/laporan/kelas':          'Laporan Kelas',
+  '/laporan/statistik':      'Statistik',
+  '/laporan/threshold':      'Threshold',
+  '/laporan/surat-teguran':  'Surat Teguran',
+  '/pengaturan/pengguna':    'Pengguna',
+  '/pengaturan/sistem':      'Pengaturan',
+  '/audit-log':              'Audit Log',
+  '/profile':                'Profil',
+}
+
+function getPageTitle(pathname: string): string {
+  // Match longest prefix first
+  const keys = Object.keys(PAGE_TITLES).sort((a, b) => b.length - a.length)
+  const match = keys.find(k => pathname === k || pathname.startsWith(k + '/'))
+  return match ? PAGE_TITLES[match] : 'SIPS'
+}
 
 interface TopbarProps {
   userName: string
@@ -27,6 +56,8 @@ export function Topbar({
   onToggleSidebarCollapse,
 }: TopbarProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const pageTitle = getPageTitle(pathname)
   const [mounted, setMounted] = useState(false)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [showProfile, setShowProfile] = useState(false)
@@ -68,8 +99,8 @@ export function Topbar({
       }}
     >
       {/* ── LEFT: Hamburger + Search ── */}
-      <div className="flex items-center gap-3 flex-1 min-w-0 mr-3">
-        {/* Mobile menu button */}
+      <div className="flex items-center gap-2 flex-1 min-w-0 mr-3">
+        {/* Mobile menu button — hidden when bottom nav is present */}
         <button
           onClick={onMenuClick}
           className="lg:hidden p-1.5 rounded-lg transition-colors cursor-pointer flex-shrink-0"
@@ -84,8 +115,18 @@ export function Topbar({
           }}
           aria-label="Buka Menu"
         >
-          <Menu size={18} />
+          <Menu size={20} />
         </button>
+
+        {/* Mobile page title — shown only on mobile, center of topbar */}
+        <div className="lg:hidden flex-1 min-w-0">
+          <p
+            className="text-[0.875rem] font-semibold truncate"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {pageTitle}
+          </p>
+        </div>
 
         {/* Desktop expand button when sidebar collapsed */}
         {isSidebarCollapsed && onToggleSidebarCollapse && (
