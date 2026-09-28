@@ -369,9 +369,14 @@ export function Topbar({
                   )}
                 </div>
                 <div className="py-1.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                  <form action="/api/auth/logout" method="POST">
-                    <button
-                      type="submit"
+                  <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await fetch('/api/auth/logout', { method: 'POST' })
+                        } catch {}
+                        router.push('/login')
+                      }}
                       className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[0.75rem] transition-colors cursor-pointer"
                       style={{ color: 'var(--text-muted)' }}
                       onMouseEnter={e => {
@@ -385,7 +390,6 @@ export function Topbar({
                     >
                       <LogOut size={14} /><span>Keluar</span>
                     </button>
-                  </form>
                 </div>
               </div>
             </>

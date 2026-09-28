@@ -1,5 +1,4 @@
 import { getLaporanKelas } from '@/actions/laporan'
-import { ExportButtons } from '@/components/laporan/laporan-export'
 import { Card } from '@/components/ui/card'
 import { School } from 'lucide-react'
 import { LaporanKelasClient } from '@/components/laporan/laporan-kelas-client'

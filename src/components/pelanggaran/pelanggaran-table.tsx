@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Plus, Search, Trash2, ChevronLeft, ChevronRight, Loader2, ClipboardList, X, RotateCcw } from 'lucide-react'
+import { Plus, Search, Trash2, ChevronLeft, ChevronRight, Loader2, ClipboardList, X, RotateCcw, GraduationCap } from 'lucide-react'
 import { createPelanggaran, deletePelanggaran } from '@/actions/pelanggaran'
 import { toast } from 'sonner'
 import { formatDate } from '@/lib/utils'
@@ -41,6 +41,10 @@ export function PelanggaranTable({ data, total, page, totalPages, limit, siswaLi
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedKelasId, setSelectedKelasId] = useState('')
+  const [siswaSearch, setSiswaSearch] = useState('')
+  const [selectedSiswaId, setSelectedSiswaId] = useState('')
+  const [selectedSiswaName, setSelectedSiswaName] = useState('')
+  const [showSiswaDropdown, setShowSiswaDropdown] = useState(false)
 
   const currentKelasId = searchParams.get('kelasId') || 'all'
   const currentKategoriId = searchParams.get('kategoriId') || 'all'
@@ -82,9 +86,19 @@ export function PelanggaranTable({ data, total, page, totalPages, limit, siswaLi
     router.push(`/pelanggaran?${params.toString()}`)
   }
 
-  const filteredSiswa = selectedKelasId
-    ? siswaList.filter((s: any) => s.kelasId === selectedKelasId)
-    : siswaList
+  const filteredSiswa = React.useMemo(() => {
+    let list = selectedKelasId
+      ? siswaList.filter((s: any) => s.kelasId === selectedKelasId)
+      : siswaList
+    if (siswaSearch.trim()) {
+      const q = siswaSearch.toLowerCase()
+      list = list.filter((s: any) =>
+        s.nama?.toLowerCase().includes(q) ||
+        s.niup?.toLowerCase().includes(q)
+      )
+    }
+    return list
+  }, [siswaList, selectedKelasId, siswaSearch])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -104,6 +118,10 @@ export function PelanggaranTable({ data, total, page, totalPages, limit, siswaLi
     toast.success('Pelanggaran berhasil dicatat')
     setShowForm(false)
     setSelectedKelasId('')
+    setSiswaSearch('')
+    setSelectedSiswaId('')
+    setSelectedSiswaName('')
+    setShowSiswaDropdown(false)
     router.refresh()
   }
 
@@ -327,7 +345,16 @@ export function PelanggaranTable({ data, total, page, totalPages, limit, siswaLi
       </div>
 
       {/* ── Form Dialog ── */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      <Dialog open={showForm} onOpenChange={(open) => {
+        setShowForm(open)
+        if (!open) {
+          setSiswaSearch('')
+          setSelectedSiswaId('')
+          setSelectedSiswaName('')
+          setShowSiswaDropdown(false)
+          setSelectedKelasId('')
+        }
+      }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Catat Pelanggaran</DialogTitle>
@@ -350,14 +377,95 @@ export function PelanggaranTable({ data, total, page, totalPages, limit, siswaLi
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="siswaId">Siswa *</Label>
-              <Select name="siswaId" required>
-                <SelectTrigger><SelectValue placeholder="Pilih siswa" /></SelectTrigger>
-                <SelectContent>
-                  {filteredSiswa.map((s: any) => (
-                    <SelectItem key={s.id} value={s.id}>{s.nama} — {s.kelas?.namaKelas}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* Hidden input to submit siswaId */}
+              <input type="hidden" name="siswaId" value={selectedSiswaId} required />
+              <div className="relative">
+                <div
+                  className="flex items-center gap-2 px-3 h-9 rounded-md border text-sm"
+                  style={{
+                    background: 'var(--input)',
+                    borderColor: showSiswaDropdown ? 'var(--gold-border, #C4912A)' : 'var(--border)',
+                    boxShadow: showSiswaDropdown ? '0 0 0 2px var(--gold-dim, rgba(196,145,42,0.15))' : 'none',
+                    transition: 'border-color 0.15s, box-shadow 0.15s',
+                  }}
+                >
+                  <Search size={13} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <input
+                    type="text"
+                    value={siswaSearch}
+                    onChange={e => {
+                      setSiswaSearch(e.target.value)
+                      setSelectedSiswaId('')
+                      setSelectedSiswaName('')
+                      setShowSiswaDropdown(true)
+                    }}
+                    onFocus={() => setShowSiswaDropdown(true)}
+                    placeholder={selectedSiswaName || 'Cari nama atau NIUP siswa...'}
+                    className="flex-1 bg-transparent outline-none text-sm"
+                    style={{ color: 'var(--text-primary)' }}
+                    autoComplete="off"
+                  />
+                  {(siswaSearch || selectedSiswaName) && (
+                    <button
+                      type="button"
+                      onClick={() => { setSiswaSearch(''); setSelectedSiswaId(''); setSelectedSiswaName(''); setShowSiswaDropdown(false) }}
+                      className="flex-shrink-0 opacity-60 hover:opacity-100"
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+                {/* Dropdown list */}
+                {showSiswaDropdown && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowSiswaDropdown(false)}
+                    />
+                    <div
+                      className="absolute top-full left-0 right-0 mt-1 rounded-md border shadow-lg z-20 overflow-hidden"
+                      style={{
+                        background: 'var(--popover)',
+                        borderColor: 'var(--border)',
+                        maxHeight: '220px',
+                        overflowY: 'auto',
+                      }}
+                    >
+                      {filteredSiswa.length === 0 ? (
+                        <div className="px-3 py-3 text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+                          Siswa tidak ditemukan
+                        </div>
+                      ) : (
+                        filteredSiswa.map((s: any) => (
+                          <button
+                            key={s.id}
+                            type="button"
+                            className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors"
+                            style={{
+                              background: selectedSiswaId === s.id ? 'var(--gold-dim, rgba(196,145,42,0.1))' : 'transparent',
+                              color: selectedSiswaId === s.id ? 'var(--gold, #C4912A)' : 'var(--text-primary)',
+                            }}
+                            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+                            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = selectedSiswaId === s.id ? 'var(--gold-dim, rgba(196,145,42,0.1))' : 'transparent'}
+                            onClick={() => {
+                              setSelectedSiswaId(s.id)
+                              setSelectedSiswaName(`${s.nama} — ${s.kelas?.namaKelas ?? ''}`)
+                              setSiswaSearch(`${s.nama} — ${s.kelas?.namaKelas ?? ''}`)
+                              setShowSiswaDropdown(false)
+                            }}
+                          >
+                            <GraduationCap size={13} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                            <div>
+                              <p className="font-medium leading-none">{s.nama}</p>
+                              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{s.kelas?.namaKelas} {s.niup ? `• ${s.niup}` : ''}</p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="kategoriPelanggaranId">Kategori Pelanggaran *</Label>
