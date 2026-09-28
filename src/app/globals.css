@@ -1636,6 +1636,13 @@ input[type="time"] { color-scheme: dark; }
   box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
 }
 
+/* Hide bottom nav on desktop */
+@media (min-width: 1024px) {
+  .bottom-nav {
+    display: none !important;
+  }
+}
+
 /* ============================================================
    MOBILE — MAIN CONTENT WITH BOTTOM NAV PADDING
    ============================================================ */
